@@ -1,5 +1,7 @@
 import * as React from 'react';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import './image-marker.scss';
+import { imageMarkerContainer, imageMarkerDefault, imageMarkerInnerContainer, imageMarkerSrc, imageMarkerText } from './imageMarker-styles';
 import { calculateMarkerPosition } from './utils';
 
 const DEFAULT_BUFFER = 12;
@@ -34,25 +36,29 @@ const ImageMarker: React.FC<Props> = ({
     alt = 'Markers',
     extraClass = '',
 }: Props) => {
-    const imageRef = React.useRef<HTMLImageElement>(null);
-    const handleImageClick = (event: React.MouseEvent) => {
+    const imageRef = React.useRef<Image>(null);
+    const handleImageClick = (event) => {
+        console.log(event);
+
+        return
+
         if (!imageRef.current || !onAddMarker) {
             return;
         }
-        const imageDimentions = imageRef.current.getBoundingClientRect();
+        // const imageDimentions = imageRef.current.getBoundingClientRect();
 
-        const [top, left] = calculateMarkerPosition(
-            event,
-            imageDimentions,
-            window.scrollY,
-            bufferLeft,
-            bufferTop
-        );
+        // const [top, left] = calculateMarkerPosition(
+        //     event,
+        //     imageDimentions,
+        //     window.scrollY,
+        //     bufferLeft,
+        //     bufferTop
+        // );
 
-        onAddMarker({
-            top,
-            left,
-        });
+        // onAddMarker({
+        //     top,
+        //     left,
+        // });
     };
 
     const getItemPosition = (marker: Marker) => {
@@ -63,31 +69,31 @@ const ImageMarker: React.FC<Props> = ({
     };
 
     return (
-        <div className="image-marker">
-            <img
-                src={src}
-                alt={alt}
-                onClick={handleImageClick}
-                className={'image-marker__image ' + extraClass}
-                ref={imageRef}
-            />
-            {markers.map((marker, itemNumber) => (
-                <div
-                    className={`image-marker__marker ${
-                        !MarkerComponent && 'image-marker__marker--default'
-                    }`}
-                    style={getItemPosition(marker)}
-                    key={itemNumber}
-                    data-testid="marker"
-                >
-                    {MarkerComponent ? (
-                        <MarkerComponent {...marker} itemNumber={itemNumber} />
-                    ) : (
-                        itemNumber + 1
-                    )}
-                </div>
-            ))}
-        </div>
+        <View style={imageMarkerContainer}>
+        <TouchableOpacity onPress={handleImageClick}>
+          <Image
+            source={{ uri: src }}
+            style={imageMarkerSrc}
+            ref={imageRef}
+          />
+        </TouchableOpacity>
+        {markers.map((marker, itemNumber) => (
+          <View
+            key={itemNumber}
+            style={{
+              ...(imageMarkerInnerContainer as Record<string, unknown>),
+              ...(imageMarkerDefault as Record<string, unknown>),
+              ...getItemPosition(marker),
+            }}
+          >
+            {MarkerComponent ? (
+              <MarkerComponent {...marker} itemNumber={itemNumber} />
+            ) : (
+              <Text style={imageMarkerText}>{itemNumber} + 1</Text>
+            )}
+          </View>
+        ))}
+      </View>
     );
 };
 
